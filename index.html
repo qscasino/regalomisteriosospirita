@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Regalo Misterioso - Arkana Games</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f4d2e 0%, #1a6b42 50%, #0f4d2e 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Estrellas de fondo */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* Renos en el fondo */
+    .reindeer {
+      position: fixed;
+      font-size: clamp(40px, 8vw, 80px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .reindeer-1 { top: 10%; left: 5%; transform: rotate(-15deg); }
+    .reindeer-2 { top: 15%; right: 8%; transform: rotate(15deg) scaleX(-1); }
+    .reindeer-3 { bottom: 15%; left: 10%; transform: rotate(10deg); }
+    .reindeer-4 { bottom: 20%; right: 5%; transform: rotate(-10deg) scaleX(-1); }
+    .reindeer-5 { top: 50%; left: 3%; transform: rotate(-5deg); }
+    .reindeer-6 { top: 45%; right: 3%; transform: rotate(8deg) scaleX(-1); }
+
+    /* Preloader */
+    #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0f4d2e 0%, #1a6b42 50%, #0f4d2e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+    }
+
+    #preloader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .preloader-logo {
+      width: clamp(120px, 40vw, 200px);
+      height: auto;
+      margin-bottom: 30px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .progress-container {
+      width: clamp(250px, 80vw, 400px);
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+
+    .loading-text {
+      margin-top: 20px;
+      color: #ffd700;
+      font-size: clamp(14px, 3vw, 18px);
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    /* Container principal */
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: clamp(15px, 4vw, 30px);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: clamp(20px, 4vh, 30px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;          /* evita que se toquen logo y badge */
+    }
+
+    .logo {
+      width: clamp(100px, 30vw, 150px);
+      height: auto;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%);
+      color: #ffd700;
+      padding: clamp(8px, 2vw, 12px) clamp(20px, 5vw, 30px);
+      border-radius: 50px;
+      font-size: clamp(11px, 2.5vw, 14px);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 2px solid #5a8c2f;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Título */
+    .title {
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      margin-bottom: clamp(10px, 2vh, 15px);
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: #ffffff;
+      font-size: clamp(14px, 3.5vw, 18px);
+      text-align: center;
+      margin-bottom: clamp(25px, 5vh, 40px);
+      line-height: 1.5;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Game container */
+    .game-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: clamp(20px, 5vw, 35px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(255, 215, 0, 0.3);
+      backdrop-filter: blur(10px);
+      margin-bottom: 20px;
+    }
+
+    /* Conveyor belt */
+    .conveyor-container {
+      position: relative;
+      width: 100%;
+      height: clamp(150px, 35vw, 200px);
+      background: linear-gradient(to bottom, #2d2d2d 0%, #1a1a1a 50%, #2d2d2d 100%);
+      border-radius: 15px;
+      overflow: hidden;
+      margin-bottom: clamp(20px, 4vh, 30px);
+      box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.5);
+      border: 3px solid #4a4a4a;
+    }
+
+    .conveyor-belt {
+      display: flex;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      gap: clamp(30px, 8vw, 50px);
+      padding: 0 clamp(30px, 8vw, 50px);
+      transform: translateY(-50%) translateX(var(--offsetX, 0px));
+      will-change: transform;
+    }
+
+    .gift-box {
+      width: clamp(80px, 20vw, 120px);
+      height: clamp(80px, 20vw, 120px);
+      flex-shrink: 0;
+      position: relative;
+      filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+    }
+
+    .gift-box.selected {
+      animation: selectGift 0.5s ease-out;
+    }
+
+    @keyframes selectGift {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* Center indicator */
+    .center-indicator {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent 0%, #ffd700 20%, #ffd700 80%, transparent 100%);
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+
+    /* Stop button */
+    .stop-button {
+      width: 100%;
+      padding: clamp(15px, 4vw, 20px);
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      color: #2d5016;
+      font-size: clamp(18px, 4.5vw, 24px);
+      font-weight: 800;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stop-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+    }
+
+    .stop-button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .stop-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .stop-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .stop-button:hover::before {
+      left: 100%;
+    }
+
+    /* Hint mensaje */
+    .hint-message {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 13px;
+      color: #ffd700;
+      min-height: 1em;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+      border-radius: 25px;
+      padding: clamp(25px, 6vw, 40px);
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border: 3px solid #ffd700;
+      position: relative;
+      animation: modalBounce 0.5s ease;
+    }
+
+    @keyframes modalBounce {
+      0% { transform: scale(0.7); opacity: 0; }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-title {
+      font-size: clamp(20px, 5vw, 28px);
+      font-weight: 800;
+      color: #2d5016;
+      margin-bottom: 15px;
+    }
+
+    .prize-container {
+      background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%);
+      border-radius: 20px;
+      padding: clamp(25px, 6vw, 35px);
+      margin: 20px 0;
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), inset 0 0 20px rgba(255, 215, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .prize-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.1) 50%, transparent 70%);
+      animation: prizeShine 3s infinite;
+    }
+
+    @keyframes prizeShine {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .prize-label {
+      color: #ffd700;
+      font-size: clamp(14px, 3.5vw, 18px);
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .prize-value {
+      color: #ffffff;
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: 800;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+      animation: prizePulse 2s infinite;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes prizePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .accept-button {
+      width: 100%;
+      padding: clamp(12px, 3vw, 16px);
+      background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%);
+      color: #ffd700;
+      font-size: clamp(16px, 4vw, 20px);
+      font-weight: 700;
+      text-transform: uppercase;
+      border: 2px solid #ffd700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      letter-spacing: 0.5px;
+    }
+
+    .accept-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(135deg, #3d6b1f 0%, #4d7b2f 100%);
+    }
+
+    .accept-button:active {
+      transform: translateY(0);
+    }
+
+    /* Confetti */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    @keyframes confettiFall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Already claimed message */
+    .claimed-message {
+      text-align: center;
+      color: #ffffff;
+      padding: clamp(30px, 8vw, 50px);
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      border: 2px solid rgba(255, 215, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .claimed-icon {
+      font-size: clamp(50px, 15vw, 80px);
+      margin-bottom: 20px;
+    }
+
+    .claimed-title {
+      font-size: clamp(22px, 5.5vw, 28px);
+      font-weight: 700;
+      color: #ffd700;
+      margin-bottom: 15px;
+    }
+
+    .claimed-text {
+      font-size: clamp(14px, 3.5vw, 18px);
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .claimed-prize {
+      background: linear-gradient(135deg, #2d5016 0%, #3d6b1f 100%);
+      color: #ffd700;
+      padding: clamp(15px, 4vw, 20px);
+      border-radius: 12px;
+      margin-top: 20px;
+      font-size: clamp(18px, 4.5vw, 24px);
+      font-weight: 700;
+      border: 2px solid #ffd700;
+    }
+
+    @media (max-width: 480px) {
+      .conveyor-belt {
+        gap: 25px;
+        padding: 0 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Estrellas de fondo -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Renos en el fondo -->
+  <div class="reindeer reindeer-1">🦌</div>
+  <div class="reindeer reindeer-2">🦌</div>
+  <div class="reindeer reindeer-3">🦌</div>
+  <div class="reindeer reindeer-4">🦌</div>
+  <div class="reindeer reindeer-5">🦌</div>
+  <div class="reindeer reindeer-6">🦌</div>
+
+  <!-- Preloader -->
+  <div id="preloader">
+    <img src="assets/image.png" alt="Arkana Games" class="preloader-logo">
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="loading-text">Cargando...</div>
+  </div>
+
+  <!-- Container principal -->
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="assets/image.png" alt="Arkana Games" class="logo">
+      <div class="badge">
+        🎄 PROMOCIÓN ESPECIAL DE NAVIDAD 🎄
+      </div>
+    </div>
+
+    <!-- Título -->
+    <h1 class="title">EL REGALO MISTERIOSO</h1>
+    <p class="subtitle">¡Detén la cinta transportadora y descubre tu premio especial del día!</p>
+
+    <!-- Game container -->
+    <div class="game-container" id="gameContainer">
+      <!-- Conveyor belt -->
+      <div class="conveyor-container">
+        <div class="center-indicator"></div>
+        <div class="conveyor-belt" id="conveyorBelt">
+          <!-- Gifts se generan por JS -->
+        </div>
+      </div>
+
+      <!-- Stop button -->
+      <button class="stop-button" id="stopButton">
+        🎁 DETENER 🎁
+      </button>
+
+      <p id="hintMessage" class="hint-message"></p>
+    </div>
+  </div>
+
+  <!-- Modal premio -->
+  <div class="modal" id="prizeModal">
+    <div class="modal-content">
+      <h2 class="modal-title">¡Felicitaciones! 🎉</h2>
+      <p style="color: #555; font-size: clamp(14px, 3.5vw, 16px); margin-bottom: 10px;">
+        ¡Has ganado tu premio especial de hoy!
+      </p>
+      <div class="prize-container">
+        <div class="prize-label">🎁 TU PREMIO DE HOY 🎁</div>
+        <div class="prize-value" id="prizeValue">-</div>
+      </div>
+      <button class="accept-button" id="acceptButton">
+        ✨ ACEPTAR PREMIO ✨
+      </button>
+    </div>
+  </div>
+
+  <!-- AUDIOS -->
+  <audio id="bgMusic" src="assets/bg-music.mp3" preload="auto" loop></audio>
+  <audio id="beltSound" src="assets/belt-loop.mp3" preload="auto" loop></audio>
+  <audio id="popupSound" src="assets/popup-win.mp3" preload="auto"></audio>
+
+  <script>
+    const STORAGE_KEY = 'arkana_regalo_misterioso_v1';
+
+    // ============================================
+    // PRELOADER
+    // ============================================
+    let progress = 0;
+    const progressBar = document.getElementById('progressBar');
+    const preloader = document.getElementById('preloader');
+
+    const loadingInterval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(loadingInterval);
+        setTimeout(() => {
+          preloader.classList.add('hidden');
+          setTimeout(() => {
+            preloader.style.display = 'none';
+          }, 500);
+        }, 500);
+      }
+      progressBar.style.width = progress + '%';
+    }, 200);
+
+    // ============================================
+    // GENERAR ESTRELLAS
+    // ============================================
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 100; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      starsContainer.appendChild(star);
+    }
+
+    // ============================================
+    // AUDIO
+    // ============================================
+    const bgMusic = document.getElementById('bgMusic');
+    const beltSound = document.getElementById('beltSound');
+    const popupSound = document.getElementById('popupSound');
+    let audioStarted = false;
+
+    function safePlay(audio, volume = 1) {
+      if (!audio) return;
+      try {
+        audio.volume = volume;
+        audio.play().catch(() => {});
+      } catch(e) {}
+    }
+
+    function startAudios() {
+      if (audioStarted) return;
+      audioStarted = true;
+      safePlay(bgMusic, 0.3);
+      if (!isStopped) {
+        safePlay(beltSound, 0.4);
+      }
+    }
+
+    window.addEventListener('pointerdown', startAudios, { once: true });
+    window.addEventListener('keydown', (e) => {
+      if (!audioStarted && (e.key === ' ' || e.key === 'Enter')) {
+        startAudios();
+      }
+    });
+
+    // ============================================
+    // SISTEMA DE PREMIOS
+    // ============================================
+    const premios = [
+      { nombre: 'Bono 100%', peso: 35 },
+      { nombre: 'Bono 150%', peso: 30 },
+      { nombre: 'Bono 200%', peso: 20 },
+      { nombre: 'Bono a Elección', peso: 10 },
+      { nombre: 'Bono Sorpresa', peso: 5 }
+    ];
+
+    function obtenerPremioAleatorio() {
+      const pesoTotal = premios.reduce((sum, p) => sum + p.peso, 0);
+      let random = Math.random() * pesoTotal;
+
+      for (const premio of premios) {
+        if (random < premio.peso) {
+          return premio.nombre;
+        }
+        random -= premio.peso;
+      }
+
+      return premios[0].nombre;
+    }
+
+    // ============================================
+    // GENERAR REGALOS EN LA CINTA
+    // ============================================
+    const conveyorBelt = document.getElementById('conveyorBelt');
+
+    function crearRegalos() {
+      const totalBase = 10; // base que luego duplicamos
+      for (let i = 0; i < totalBase; i++) {
+        const gift = document.createElement('div');
+        gift.className = 'gift-box';
+        gift.innerHTML = `
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <defs>
+              <linearGradient id="giftGrad${i}" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <!-- Gift box body -->
+            <rect x="15" y="30" width="70" height="60" fill="url(#giftGrad${i})" rx="5"/>
+            <!-- Ribbon vertical -->
+            <rect x="45" y="30" width="10" height="60" fill="#ffd700"/>
+            <!-- Ribbon horizontal -->
+            <rect x="15" y="55" width="70" height="10" fill="#ffd700"/>
+            <!-- Bow -->
+            <ellipse cx="40" cy="25" rx="8" ry="6" fill="#ffd700"/>
+            <ellipse cx="60" cy="25" rx="8" ry="6" fill="#ffd700"/>
+            <circle cx="50" cy="25" r="5" fill="#ffed4e"/>
+            <!-- Shadow -->
+            <ellipse cx="50" cy="95" rx="35" ry="3" fill="rgba(0,0,0,0.3)"/>
+          </svg>
+        `;
+        conveyorBelt.appendChild(gift);
+      }
+
+      // Duplicar contenido para loop infinito suave
+      conveyorBelt.innerHTML += conveyorBelt.innerHTML;
+    }
+
+    crearRegalos();
+
+    // ============================================
+    // ANIMACIÓN SUAVE DE LA CINTA (JS)
+    // ============================================
+    let running = true;
+    let offsetX = 0;
+    let lastTime = null;
+    const SPEED = 120; // px/seg aprox
+
+    function animarCinta(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const dt = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      if (running) {
+        offsetX -= SPEED * dt;
+
+        const totalWidth = conveyorBelt.scrollWidth;
+        const loopWidth = totalWidth / 2; // porque duplicamos contenido
+
+        if (offsetX <= -loopWidth) {
+          offsetX += loopWidth;
+        }
+
+        conveyorBelt.style.setProperty('--offsetX', offsetX + 'px');
+      }
+
+      requestAnimationFrame(animarCinta);
+    }
+
+    requestAnimationFrame(animarCinta);
+
+    // ============================================
+    // LÓGICA DEL JUEGO
+    // ============================================
+    const stopButton = document.getElementById('stopButton');
+    const prizeModal = document.getElementById('prizeModal');
+    const prizeValue = document.getElementById('prizeValue');
+    const acceptButton = document.getElementById('acceptButton');
+    const gameContainer = document.getElementById('gameContainer');
+    const hintMessage = document.getElementById('hintMessage');
+
+    let isStopped = false;
+    let todaysPrize = null;
+
+    // Verificar si ya jugó hoy
+    function checkIfPlayedToday() {
+      const today = new Date().toDateString();
+      const savedData = localStorage.getItem(STORAGE_KEY);
+
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        if (data.date === today) {
+          showAlreadyClaimed(data.prize);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function showAlreadyClaimed(prize) {
+      running = false;
+      isStopped = true;
+      if (beltSound) {
+        beltSound.pause();
+        beltSound.currentTime = 0;
+      }
+
+      gameContainer.innerHTML = `
+        <div class="claimed-message">
+          <div class="claimed-icon">🎁</div>
+          <div class="claimed-title">¡Ya reclamaste tu regalo de hoy!</div>
+          <div class="claimed-text">
+            Has detenido la cinta transportadora y recibiste tu premio especial.
+          </div>
+          <div class="claimed-text">
+            Volvé mañana para una nueva oportunidad.
+          </div>
+          <div class="claimed-prize">
+            Tu premio: ${prize}
+          </div>
+        </div>
+      `;
+    }
+
+    function mostrarHint(texto) {
+      if (!hintMessage) return;
+      hintMessage.textContent = texto;
+      hintMessage.style.opacity = '1';
+      clearTimeout(hintMessage._timeout);
+      hintMessage._timeout = setTimeout(() => {
+        hintMessage.style.opacity = '0';
+      }, 2500);
+    }
+
+    // Detener la cinta
+    stopButton.addEventListener('click', () => {
+      if (isStopped) return;
+
+      const container = document.querySelector('.conveyor-container');
+      const containerRect = container.getBoundingClientRect();
+      const centerX = containerRect.left + containerRect.width / 2;
+
+      const gifts = document.querySelectorAll('.gift-box');
+      let closestGift = null;
+      let minDistance = Infinity;
+      let closestRect = null;
+
+      gifts.forEach(gift => {
+        const rect = gift.getBoundingClientRect();
+        const giftCenter = rect.left + rect.width / 2;
+        const distance = Math.abs(giftCenter - centerX);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestGift = gift;
+          closestRect = rect;
+        }
+      });
+
+      if (!closestGift || !closestRect) return;
+
+      const threshold = closestRect.width * 0.35; // si la línea está muy lejos, no hay caja
+      if (minDistance > threshold) {
+        mostrarHint('🎁 Tocá detener cuando una caja esté justo en la línea.');
+        return;
+      }
+
+      // Selección válida: ahora sí frenamos
+      isStopped = true;
+      running = false;
+      stopButton.disabled = true;
+      stopButton.textContent = '🎁 DETENIDO 🎁';
+      hintMessage.style.opacity = '0';
+
+      if (beltSound) {
+        beltSound.pause();
+        beltSound.currentTime = 0;
+      }
+
+      closestGift.classList.add('selected');
+
+      // Generar premio y mostrar modal
+      setTimeout(() => {
+        todaysPrize = obtenerPremioAleatorio();
+        prizeValue.textContent = todaysPrize;
+        prizeModal.classList.add('active');
+        createConfetti();
+
+        // audio del pop-up + ducking del fondo
+        if (bgMusic) bgMusic.volume = 0.18;
+        if (popupSound) {
+          popupSound.currentTime = 0;
+          safePlay(popupSound, 0.85);
+        }
+      }, 800);
+    });
+
+    // Aceptar premio
+    acceptButton.addEventListener('click', () => {
+      const today = new Date().toDateString();
+      const data = {
+        date: today,
+        prize: todaysPrize
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+      prizeModal.classList.remove('active');
+
+      // cortar audio del pop-up y restaurar fondo
+      if (popupSound) {
+        popupSound.pause();
+        popupSound.currentTime = 0;
+      }
+      if (bgMusic) bgMusic.volume = 0.3;
+
+      showAlreadyClaimed(todaysPrize);
+    });
+
+    // Confetti
+    function createConfetti() {
+      const colors = ['#ffd700', '#ffed4e', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'];
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.top = '-10px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animation = `confettiFall ${2 + Math.random() * 3}s linear forwards`;
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 5000);
+      }
+    }
+
+    // Verificar al cargar
+    window.addEventListener('load', () => {
+      checkIfPlayedToday();
+    });
+  </script>
+</body>
+</html>
